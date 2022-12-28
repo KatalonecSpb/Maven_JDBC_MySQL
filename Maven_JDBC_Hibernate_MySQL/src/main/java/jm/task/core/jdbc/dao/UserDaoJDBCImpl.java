@@ -22,6 +22,7 @@ public class UserDaoJDBCImpl implements UserDao {
                     "age INT," +
                     "PRIMARY KEY (id))");
             System.out.println("Таблица создана");
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -31,6 +32,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement st = connection.createStatement()) {
             st.executeUpdate("DROP TABLE IF EXISTS  mydbtest");
             System.out.println("Таблица удалена");
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -44,25 +46,29 @@ public class UserDaoJDBCImpl implements UserDao {
             pS.setByte(3, age);
             pS.executeUpdate();
             System.out.println("User с именем - " + name + " добавлен в базу данных");
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void removeUserById(long id) {
-        try (Statement st = connection.createStatement()) {
-            st.executeUpdate("DELETE FROM mydbtest WHERE id");
+        String sql = "DELETE FROM mydbtest(id) VALUES(?)";
+        try (PreparedStatement pS = connection.prepareStatement(sql)) {
+            pS.setLong(1, id);
             System.out.println("User удален");
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     public List<User> getAllUsers() {
         List<User> allUsers = new ArrayList<>();
         try (Statement st = connection.createStatement()) {
             ResultSet rS = st.executeQuery("SELECT  id, name, lastName, age FROM mydbtest");
-
+            connection.commit();
             while (rS.next()) {
                 User user = new User();
                 user.setId(rS.getLong("id"));
@@ -82,6 +88,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement st = connection.createStatement()) {
             st.executeUpdate("TRUNCATE mydbtest");
             System.out.println("Таблица очищена");
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Не удалось очисить");
