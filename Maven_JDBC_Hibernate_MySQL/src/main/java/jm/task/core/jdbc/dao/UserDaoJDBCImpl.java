@@ -47,9 +47,13 @@ public class UserDaoJDBCImpl implements UserDao {
             pS.executeUpdate();
             System.out.println("User с именем - " + name + " добавлен в базу данных");
             connection.commit();
-            connection.rollback();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -59,9 +63,13 @@ public class UserDaoJDBCImpl implements UserDao {
             pS.setLong(1, id);
             System.out.println("User удален");
             connection.commit();
-            connection.rollback();
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
     }
@@ -71,7 +79,6 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement st = connection.createStatement()) {
             ResultSet rS = st.executeQuery("SELECT  id, name, lastName, age FROM mydbtest");
             connection.commit();
-            connection.rollback();
             while (rS.next()) {
                 User user = new User();
                 user.setId(rS.getLong("id"));
@@ -80,9 +87,13 @@ public class UserDaoJDBCImpl implements UserDao {
                 user.setAge(rS.getByte("age"));
                 allUsers.add(user);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
         return allUsers;
     }
@@ -92,10 +103,15 @@ public class UserDaoJDBCImpl implements UserDao {
             st.executeUpdate("TRUNCATE mydbtest");
             System.out.println("Таблица очищена");
             connection.commit();
-            connection.rollback();
+
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Не удалось очисить");
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }
